@@ -1,11 +1,19 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import StackNavigator from './src/config/navigation/StackNavigator';
+import { initCometChat } from './src/config/services/cometchat-service';
 
-export default function App() {
+const App = () => {
+  useEffect(() => {
+    // Initialize CometChat when the app loads
+    initCometChat();
+  }, []);
+
   return (
-    <NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <StackNavigator />
-    </NavigationContainer>
+    </GestureHandlerRootView>
   );
-}
+};
+
+export default App;
