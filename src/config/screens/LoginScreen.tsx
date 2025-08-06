@@ -1,56 +1,76 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import { loginWithCometChat } from '../services/cometchat-service';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/types';
+import { View, TextInput, Button, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { loginWithCometChat } from '../services/cometchat-service';
+import { RootStackParamList } from '../navigation/types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 const LoginScreen = () => {
   const [uid, setUid] = useState('');
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [loading, setLoading] = useState(false);
+  const navigation = useNavigation<NavigationProp>();
 
   const handleLogin = async () => {
+    if (!uid.trim()) {
+      alert('Please enter UID');
+      return;
+    }
+
+    setLoading(true);
     try {
-      await loginWithCometChat(uid);
-      navigation.navigate('Home');
+      await loginWithCometChat(uid.trim());
+      navigation.replace('Home');
     } catch (error) {
-      Alert.alert('Login Failed', 'Please try again.');
+      alert('Login failed. Please try again.');
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login to NovaChat</Text>
+      <Text style={styles.title}>NovaChat</Text>
       <TextInput
         placeholder="Enter UID"
+        style={styles.input}
         value={uid}
         onChangeText={setUid}
-        style={styles.input}
+        autoCapitalize="none"
       />
-      <Button title="Login" onPress={handleLogin} />
+      {loading ? (
+        <ActivityIndicator size="large" color="#007bff" />
+      ) : (
+        <Button title="Login" onPress={handleLogin} />
+      )}
     </View>
   );
 };
 
+export default LoginScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#fff',
+    justifyContent: 'center',
+    backgroundColor: '#f0f4f7',
   },
   title: {
-    fontSize: 24,
-    marginBottom: 20,
-    textAlign: 'center',
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 40,
+    alignSelf: 'center',
   },
   input: {
-    height: 40,
+    height: 50,
     borderColor: '#ccc',
     borderWidth: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
     marginBottom: 20,
+    borderRadius: 8,
+    backgroundColor: '#fff',
   },
 });
-
-export default LoginScreen;
